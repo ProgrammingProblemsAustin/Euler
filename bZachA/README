@@ -1,0 +1,3 @@
+to use run ./nixShellWithDeps.sh
+
+you can do this only after installing the nix package manager (should work on linux or mac)
