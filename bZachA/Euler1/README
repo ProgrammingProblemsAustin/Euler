@@ -1,2 +1,4 @@
 ghc 1.hs
 ./1
+
+fastest general version of algo might start by dividing target number by each constituent number rounding down, or if the division resulted in a whole number, subtracting 1, and then generate the "multiplicaiton series" based on those upper bounds, then add.
