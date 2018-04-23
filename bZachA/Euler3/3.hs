@@ -4,6 +4,58 @@
 import Control.Monad.State
 import Data.Int
 
+
+
+
+
+
+-- WELCOME TO THE GRAVEYARD OF BAD IDEAS!
+
+-- -- MEMORY BRUTE FORCE way (doesn't work): generate all primes less than floor(number / 2) then divide by each of them until one is divisible (we know 2 isn't a candidate)
+--
+-- -- maxExtentPrimeSieveList `div` 2
+-- generatListOfPrimesLessThan :: Int -> [Int]
+-- generatListOfPrimesLessThan maxExtent = flip evalState ([2]) $ do
+--   _ <- forM [3..maxExtent] $ \numToTest -> do
+--     (primes) <- get
+--     let isPrime = foldl (\baseCase numberToTestWith -> if numToTest `rem` numberToTestWith == 0 then baseCase && False else baseCase && True) True primes
+--     if isPrime then
+--       put (numToTest:primes)
+--       else
+--       put (primes)
+--   (c) <- get
+--   return c
+--
+-- findLargestDivisiblePrimeFromListOfPrimes :: [Int] -> Int -> Int
+-- findLargestDivisiblePrimeFromListOfPrimes listOfPrimes numberToTestForDivisibility =
+--   if null listOfPrimes then
+--     -1 -- -1 means it's prime...
+--   else
+--   case numberToTestForDivisibility `rem` head listOfPrimes of
+--     0 -> head listOfPrimes
+--     _ -> findLargestDivisiblePrimeFromListOfPrimes (tail listOfPrimes) numberToTestForDivisibility
+--
+-- main :: IO ()
+-- main = do
+--   putStrLn "enter inputNumber"
+--   inputNumberInput <- getLine
+--
+--   let inputNumber = read inputNumberInput ::Int
+--   let listOfPrimesToTest = generatListOfPrimesLessThan inputNumber
+--   -- putStrLn $ "listOfPrimesToTEst" ++ show listOfPrimesToTest
+--   let theAnswer = findLargestDivisiblePrimeFromListOfPrimes listOfPrimesToTest inputNumber
+--
+--   -- let listOfFibs = takeWhile (>= upperBound) [ fib  | i <- [1..]]
+--   -- foldl'
+--
+--   -- let theAnswer = sieveOfFactoring indexOfPrimeList listOfPrimes maxExtentOfPrimeSieveList listOfFactors inputNumber
+--   putStrLn $ "the larget prime factor of" ++ show inputNumber  ++ " is " ++ show theAnswer
+
+
+
+
+
+
 -- well let's start off the dumb way
 -- sieve of erastophenes or something like that
 -- take remainder with various primes, and cross off all their multiples
@@ -15,8 +67,6 @@ import Data.Int
 
 -- while finding primes, we also need to find which primes are prime factors, of the target number and it's various "reductions" (so in essence we are having to go backwards and find the smallest prime factor first)
 
-
--- also need a way to test if all our prime factors
 
 -- going to try and make this recursive instead of using state monad
 
@@ -34,49 +84,72 @@ import Data.Int
 --   (_,_,c) <- get
 --   return c
 
+-- sieveOfFactoring 0 [] 3 [1] 600851475143
 -- indexOfPrimeList should always start at 0, list ofPrimes as [], maxExtentPrimeSieveList > 2, listOfFactors [1]
-sieveOfFactoring :: Int -> [Int] -> Int -> [Int] -> Int -> Int
-sieveOfFactoring indexOfPrimeList listOfPrimes maxExtentPrimeSieveList listOfFactors inputNumber =
-  -- branch prediction bless us with your power, save us from our sins
-  if null listOfPrimes then
-      let newListOfPrimes = [2.. maxExtentPrimeSieveList] in
-      if inputNumber `rem` newListOfPrimes !! indexOfPrimeList == 0 then
-        if inputNumber == newListOfPrimes !! indexOfPrimeList * product listOfFactors then
-            head $ tail listOfFactors
-          else
-            sieveOfFactoring indexOfPrimeList (filter (\num -> (num `rem` newListOfPrimes !! indexOfPrimeList) /= 0) newListOfPrimes) maxExtentPrimeSieveList ((newListOfPrimes !! indexOfPrimeList):listOfFactors) inputNumber
-      else
-        sieveOfFactoring indexOfPrimeList (filter (\num -> (num `rem` newListOfPrimes !! indexOfPrimeList) /= 0) newListOfPrimes) maxExtentPrimeSieveList listOfFactors inputNumber
-    else
-      if inputNumber `rem` listOfPrimes !! indexOfPrimeList == 0 then
-        if inputNumber == listOfPrimes !! indexOfPrimeList * product listOfFactors then
-            head $ tail listOfFactors
-          else
-            sieveOfFactoring indexOfPrimeList (filter (\num -> (num `rem` listOfPrimes !! indexOfPrimeList) /= 0) listOfPrimes) maxExtentPrimeSieveList (listOfPrimes !! indexOfPrimeList:listOfFactors) inputNumber
-      else
-        sieveOfFactoring indexOfPrimeList (filter (\num -> (num `rem` listOfPrimes !! indexOfPrimeList) /= 0) listOfPrimes) maxExtentPrimeSieveList listOfFactors inputNumber
+-- foo:: Int -> Int -> Int
+-- foo z x = if (z < 100)
+--              then z * foo (z+(x*z)) z
+--              else z
 
-main :: IO ()
-main = do
-  putStrLn "enter indexOfPrimeList"
-  indexOfPrimeListInput <- getLine
-  putStrLn "enter listOfPrimes"
-  listOfPrimesInput <- getLine
-  putStrLn "enter maxExtentPrimeSieveList"
-  maxExtentPrimeSieveListInput <- getLine
-  putStrLn "enter listOfFactors"
-  listOfFactorsInput <- getLine
-  putStrLn "enter inputNumber"
-  inputNumberInput <- getLine
+-- foo :: Int -> Int -> (IO (), Int)
+-- foo z x = if z < 100 then (print z >> io, z * rec) else (return (), z) where
+--     (io, rec) = foo (z+x*z) z
+-- For example, you could print the recursive calls by setting
 
-  let indexOfPrimeList = read indexOfPrimeListInput ::Int
-  let listOfPrimes = read listOfPrimesInput ::[Int]
-  let maxExtentOfPrimeSieveList = read maxExtentPrimeSieveListInput ::Int
-  let listOfFactors = read listOfFactorsInput ::[Int]
-  let inputNumber = read inputNumberInput ::Int
+-- main = fst $ foo 13 7
+-- or you could just print the answer by setting
 
-  -- let listOfFibs = takeWhile (>= upperBound) [ fib  | i <- [1..]]
-  -- foldl'
+-- main = print . snd $ foo 13 7
+-- or half a dozen other things. Of course, the IO () type is a bit hard to inspect; you might consider writing something like this instead:
 
-  let theAnswer = sieveOfFactoring indexOfPrimeList listOfPrimes maxExtentOfPrimeSieveList listOfFactors inputNumber
-  putStrLn $ "the larget prime factor of" ++ show inputNumber  ++ " is " ++ show theAnswer
+-- foo' :: Int -> Int -> Writer [Int] Int
+-- foo' z x = if z < 100
+--     then tell [z] >> fmap (z*) (foo' (z+x*z) z)
+--     else return z
+-- main = print . snd . runWriter $ foo' 13 7 -- to print a list of the calling values
+-- main = print . fst . runWriter $ foo' 13 7 -- to print the result
+
+-- -- TODO this should be approximately how to implement a writer monad - only problem is termination condition actually needs to cause termination
+
+-- sieveOfFactoring :: Int -> [Int] -> Int -> [Int] -> Int -> Writer [Int, [Int], Int, [Int]] Int
+-- sieveOfFactoring indexOfPrimeList listOfPrimes maxExtentPrimeSieveList listOfFactors inputNumber =
+--   -- branch prediction bless us with your power, save us from our sins
+--   if null listOfPrimes then
+--       let newListOfPrimes = [2.. maxExtentPrimeSieveList] in
+--       if inputNumber `rem` newListOfPrimes !! indexOfPrimeList == 0 then
+--         if inputNumber == newListOfPrimes !! indexOfPrimeList * product listOfFactors then
+--             return $ head $ tail listOfFactors
+--         else
+--             tell [indexOfPrimeList listOfPrimes maxExtentPrimeSieveList listOfFactors] >> sieveOfFactoring indexOfPrimeList (filter (\num -> (num `rem` newListOfPrimes !! indexOfPrimeList) /= 0) newListOfPrimes) maxExtentPrimeSieveList ((newListOfPrimes !! indexOfPrimeList):listOfFactors) inputNumber
+
+-- sieveOfFactoring :: Int -> [Int] -> Int -> [Int] -> Int -> Int
+-- sieveOfFactoring indexOfPrimeList listOfPrimes maxExtentPrimeSieveList listOfFactors inputNumber
+--   -- branch prediction bless us with your power, save us from our sins
+--   | null listOfPrimes =
+--       let newListOfPrimes = [2.. maxExtentPrimeSieveList] in
+--       if inputNumber `rem` newListOfPrimes !! indexOfPrimeList == 0 then
+--         if inputNumber == newListOfPrimes !! indexOfPrimeList * product listOfFactors then
+--             head $ tail listOfFactors
+--         else
+--             sieveOfFactoring indexOfPrimeList (filter (\num -> (num `rem` newListOfPrimes !! indexOfPrimeList) /= 0) newListOfPrimes) maxExtentPrimeSieveList ((newListOfPrimes !! indexOfPrimeList):listOfFactors) inputNumber
+--       else
+--         sieveOfFactoring indexOfPrimeList (filter (\num -> (num `rem` newListOfPrimes !! indexOfPrimeList) /= 0) newListOfPrimes) maxExtentPrimeSieveList listOfFactors inputNumber
+--   | inputNumber `rem` listOfPrimes !! indexOfPrimeList == 0 =
+--       if inputNumber == listOfPrimes !! indexOfPrimeList * product listOfFactors then
+--           head $ tail listOfFactors
+--       else
+--           sieveOfFactoring indexOfPrimeList (filter (\num -> (num `rem` listOfPrimes !! indexOfPrimeList) /= 0) listOfPrimes) maxExtentPrimeSieveList (listOfPrimes !! indexOfPrimeList:listOfFactors) inputNumber
+--   | otherwise =
+--         sieveOfFactoring indexOfPrimeList (filter (\num -> (num `rem` listOfPrimes !! indexOfPrimeList) /= 0) listOfPrimes) maxExtentPrimeSieveList listOfFactors inputNumber
+-- sieveOfFactoring inputNumber maxExtentPrimeSieveList = flip evalState (3, [2..maxExtentPrimeSieveList], []) $ do
+--   _ <- forM [0..(maxExtentPrimeSieveList/2)] $ \_ -> do
+--     (numberToTest, testedPrimes, inputPrimeFactors) <- get
+--     if inputNumber `rem` numberToTest == 0 then
+--       if inputNumber == numberToTest * (product testedPrimes) then
+--           put (numberToTest + 1, [], numberToTest:testedPrimes)
+--         else
+--           put (numberToTest + 1, [], numberToTest:testedPrimes)
+--       else
+--         put (numberToTest + 1, [], numberToTest:testedPrimes)
+--   (_,_,c) <- get
+--   return c
