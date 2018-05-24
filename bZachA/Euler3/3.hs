@@ -5,6 +5,37 @@ import Control.Monad.State
 import Data.Int
 
 
+--  def largest_prime_factor(number)
+--    i = 2
+--    while number > 1
+--      if number % i == 0
+--        number /= i;
+--        i -= 1
+--      end
+--      i += 1
+--    end
+--    return i
+--  end
+
+stupidlySimpleLargestPrimeFactor :: Int -> Int -> Int
+stupidlySimpleLargestPrimeFactor inputNumber counterStartsAt2 =
+  if inputNumber > 1 then
+    if inputNumber `rem` counterStartsAt2 == 0 then
+      stupidlySimpleLargestPrimeFactor (inputNumber `div` counterStartsAt2) counterStartsAt2
+    else
+      stupidlySimpleLargestPrimeFactor inputNumber (counterStartsAt2 + 1)
+  else
+      counterStartsAt2
+
+main :: IO ()
+main = do
+  putStrLn "enter inputNumber"
+  inputNumberInput <- getLine
+  let inputNumber = read inputNumberInput
+  putStrLn "Da largest prime factor is: "
+  print $ stupidlySimpleLargestPrimeFactor inputNumber 2
+
+
 
 
 
