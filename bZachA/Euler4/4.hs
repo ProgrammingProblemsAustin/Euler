@@ -27,24 +27,45 @@ import Data.Int
 -- that would probably be slower than just multiplying two three digit numbers together and checking if they result in a palindrome starting from the largest three digit numbers; or at least it wouldn't scale as well to really high numbers
 
 
-multiplyAndCheckForPalindrome :: Int -> Int -> Bool
-multiplyAndCheckForPalindrome inputNumber1 inputNumber2 =
+
+multiplyAndCheckForPalindrome :: (Int, Int) -> Bool
+multiplyAndCheckForPalindrome (inputNumber1, inputNumber2) =
   let stringRepresentation = show $ inputNumber1 * inputNumber2 in
-  stringRepresentation == reverse stringRepresentation
+  (stringRepresentation /= reverse stringRepresentation)
+
+
+-- TODO implement function that generates this table as list of tuples (where * is ,)
+-- 999 * 999 998 * 999 997 * 999 996 * 999
+-- 999 * 998 998 * 998 997 * 998 996 * 998
+-- 999 * 997 998 * 997 997 * 997 996 * 997
+-- 999 * 996 998 * 996 997 * 996 996 * 996
+
+-- 999 * 999 998 * 999 997 * 999 996 * 999
+--           998 * 998 997 * 998 996 * 998
+--                     997 * 997 996 * 997
+--                               996 * 996
+-- generatePairsOfThreeDigitNumbersOrderedByProductSize :: Int -> Int -> Int -> [(Int, Int)]
+-- generatePairsOfThreeDigitNumbersOrderedByProductSize hundredsPlaceCounter tensPlaceCounter onesPlaceCounter =
+
 
 -- 999 * 999, 998 * 999, 998 * 998, 997 * 999, 997 * 998, 997 * 997
-generatePairsOfThreeDigitNumbersOrderedByProductSize :: Int -> Int -> [(Int, Int)]
-generatePairsOfThreeDigitNumbersOrderedByProductSize onesPlaceCounter tensPlaceCounter hundredsPlaceCounter =
-  -- let onesPlaceCounter = 9 in
-  -- let tensPlaceCounter = 9 in
-  -- let hundredsPlaceCounter = 9 in
-  if onesPlaceCounter == 0 then
-    if tensPlaceCounter == 0 then
-      if hundredsPlaceCounter == 0 then
-        [000]
-      else
-        [hundredsPlaceCounter tensPlaceCounter onesPlaceCounter] ++ generatePairsOfThreeDigitNumbersOrderedByProductSize 9 9 (hundredsPlaceCounter - 1)
-      [hundredsPlaceCounter tensPlaceCounter onesPlaceCounter]  ++ generatePairsOfThreeDigitNumbersOrderedByProductSize 9 9 (hundredsPlaceCounter)
+-- problem, this skips generating duplicate numbers (999, 999), (998, 998)
+-- not only that it also skips all multiplications of number with a difference greater than one ...
+-- e.g. 997 * 999, 888 * 999
+-- though interestingly 539 * 538 was the first product of one number pair that resulted in a palindrome (289982)
+-- generatePairsOfThreeDigitNumbersOrderedByProductSize :: Int -> Int -> Int -> [(Int, Int)]
+-- generatePairsOfThreeDigitNumbersOrderedByProductSize hundredsPlaceCounter tensPlaceCounter onesPlaceCounter =
+--   if onesPlaceCounter == 0 then
+--     if tensPlaceCounter == 0 then
+--       if hundredsPlaceCounter == 0 then
+--         [(000, 000)]
+--       else
+--         (hundredsPlaceCounter * 100 + tensPlaceCounter * 10 + onesPlaceCounter, (hundredsPlaceCounter - 1) * 100 + 90  + 9 ) : generatePairsOfThreeDigitNumbersOrderedByProductSize (hundredsPlaceCounter - 1) 9 9
+--       -- [hundredsPlaceCounter tensPlaceCounter onesPlaceCounter]  ++ generatePairsOfThreeDigitNumbersOrderedByProductSize (hundredsPlaceCounter) 9 9
+--     else
+--       (hundredsPlaceCounter * 100 + tensPlaceCounter * 10 + onesPlaceCounter, hundredsPlaceCounter * 100 + (tensPlaceCounter - 1) * 10 + 9) : generatePairsOfThreeDigitNumbersOrderedByProductSize hundredsPlaceCounter (tensPlaceCounter - 1) 9
+--   else
+--     (hundredsPlaceCounter * 100 + tensPlaceCounter * 10 + onesPlaceCounter, hundredsPlaceCounter * 100 + tensPlaceCounter * 10 + onesPlaceCounter - 1)  : generatePairsOfThreeDigitNumbersOrderedByProductSize hundredsPlaceCounter tensPlaceCounter (onesPlaceCounter - 1)
 
 main :: IO ()
 main = do
