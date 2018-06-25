@@ -2,8 +2,13 @@
 --
 -- Find the largest palindrome made from the product of two 3-digit numbers.
 
+
+-- 906609 is the largest
+-- biggest question would be, am I multiplying these in the correct order?
+
 import Control.Monad.State
 import Data.Int
+import Data.List
 
 -- naive way: multiply every relevant combination of numbers together, then check if the product is a palindrome
 
@@ -14,7 +19,7 @@ import Data.Int
 -- but every subsequent digit depends more and more on previous digits
 -- because there's more possible "carrying" happening
 
--- or we could search the other way: 
+-- or we could search the other way:
 -- we could lazily generate all the palindromes starting from
 -- 999,999
 -- so,
@@ -31,21 +36,71 @@ import Data.Int
 multiplyAndCheckForPalindrome :: (Int, Int) -> Bool
 multiplyAndCheckForPalindrome (inputNumber1, inputNumber2) =
   let stringRepresentation = show $ inputNumber1 * inputNumber2 in
-  (stringRepresentation /= reverse stringRepresentation)
+  (stringRepresentation == reverse stringRepresentation)
 
+multiply2Tuple :: (Int, Int) -> Int
+multiply2Tuple (inputNumber1, inputNumber2) = inputNumber1 * inputNumber2
 
--- TODO implement function that generates this table as list of tuples (where * is ,)
+-- TODO implement function that generates this table (or triangle) as list of tuples (where * is ,)
 -- 999 * 999 998 * 999 997 * 999 996 * 999
 -- 999 * 998 998 * 998 997 * 998 996 * 998
 -- 999 * 997 998 * 997 997 * 997 996 * 997
 -- 999 * 996 998 * 996 997 * 996 996 * 996
 
+-- 9 * 9   8 * 9   7 * 9   6 * 9  ...
+-- 9 * 8   8 * 8   7 * 8   6 * 8  ... 1 interval
+--                 7 * 7   6 * 7  ... 2 interval
+--                                ... 0 interval
+-- 4,4 3,4 2,4 1,4 0,4
+--     3,3 2,3 1,3 0,3 4
+--         2,2 1,2 0,2 3
+--             1,1 0,1 2
+--                 0,0 1
+--                     0
+
+  -- 1,2,3,4,5,6,7
 -- 999 * 999 998 * 999 997 * 999 996 * 999
 --           998 * 998 997 * 998 996 * 998
 --                     997 * 997 996 * 997
 --                               996 * 996
 -- generatePairsOfThreeDigitNumbersOrderedByProductSize :: Int -> Int -> Int -> [(Int, Int)]
 -- generatePairsOfThreeDigitNumbersOrderedByProductSize hundredsPlaceCounter tensPlaceCounter onesPlaceCounter =
+-- decreaseX :: [(Int, Int)] -> [(Int, Int)]
+-- decreaseX
+
+--   2, 4, 8, 16
+generatePairsOfThreeDigitNumbersOrderedByProductSize :: Int -> [Int] -> [(Int, Int)]
+generatePairsOfThreeDigitNumbersOrderedByProductSize xAxisCounter yAxisCounters =
+  -- if xAxisCounter == 0 && head yAxisCounters == 0 then
+  --   [(0,0)]
+  if xAxisCounter == 0 then
+    map (\yAxisCounter ->
+                (xAxisCounter, yAxisCounter)
+                         ) yAxisCounters
+  else
+    map (\yAxisCounter ->
+                (xAxisCounter, yAxisCounter)
+                         ) yAxisCounters ++ generatePairsOfThreeDigitNumbersOrderedByProductSize (xAxisCounter - 1) (head yAxisCounters - 1 : yAxisCounters)
+    -- ++ generatePairsOfThreeDigitNumbersOrderedByProductSize (xAxisCounter - 1) (yAxisCounter - 1)
+    -- ++ generatePairsOfThreeDigitNumbersOrderedByProductSize (xAxisCounter - 1) yAxisCounter
+  -- else if xAxisCounter == 0 then
+  --   -- (xAxisCounter, yAxisCounter) :
+  --   generatePairsOfThreeDigitNumbersOrderedByProductSize xAxisCounter (yAxisCounter - 1)
+  -- else if yAxisCounter ==  0 then
+  --   -- (xAxisCounter, yAxisCounter) :
+  --   generatePairsOfThreeDigitNumbersOrderedByProductSize (xAxisCounter - 1) yAxisCounter
+  -- else -- if xAxisCounter == yAxisCounter then
+  --   [(xAxisCounter, yAxisCounter)]
+  --   ++ generatePairsOfThreeDigitNumbersOrderedByProductSize (xAxisCounter - 1) (yAxisCounter - 1)
+  --   ++ generatePairsOfThreeDigitNumbersOrderedByProductSize (xAxisCounter - 1) yAxisCounter
+  -- else
+  --   [(xAxisCounter, yAxisCounter)]
+    -- ++ generatePairsOfThreeDigitNumbersOrderedByProductSize (xAxisCounter - 1) (yAxisCounter - 1)
+    -- ++ generatePairsOfThreeDigitNumbersOrderedByProductSize xAxisCounter (yAxisCounter - 1)
+    -- ++ generatePairsOfThreeDigitNumbersOrderedByProductSize (xAxisCounter - 1) yAxisCounter
+
+  -- let counterDecreaser = (\counter -> generatePairsOfThreeDigitNumbersOrderedByProductSize )
+  --  until ((==) 0) counter
 
 
 -- 999 * 999, 998 * 999, 998 * 998, 997 * 999, 997 * 998, 997 * 997
@@ -69,7 +124,8 @@ multiplyAndCheckForPalindrome (inputNumber1, inputNumber2) =
 
 main :: IO ()
 main = do
-  -- putStrLn "enter inputNumber"
-  theAnswer <- pure $ takeWhile multiplyAndCheckForPalindrome (generatePairsOfThreeDigitNumbersOrderedByProductSize 9 9 9)
-  putStrLn "Da largest palindrome product of two three digit numbers is: "
+  putStrLn "generatePairsOfThreeDigitNumbersOrderedByProductSize 9 9"
+  print $ generatePairsOfThreeDigitNumbersOrderedByProductSize 9 [9]
+  theAnswer <- pure $ sort $ map multiply2Tuple $ filter multiplyAndCheckForPalindrome (generatePairsOfThreeDigitNumbersOrderedByProductSize 999 [999])
+  putStrLn "Da largest palindrome product of two three digit numbers is the last item in this list + 1: "
   print $ theAnswer
