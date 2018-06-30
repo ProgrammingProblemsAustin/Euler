@@ -10,7 +10,7 @@ so for 1 to 10 you just need to multiply together all the common prime factors.
  2 * 2 * 2  * 3 * 3 * 5 * 7 = 2520
 
 so similarly for 1 to 20, go through the primes and multiply them together until the number you get is greater then 20,
-then you have to include that many isntances minus 1 of that prime in the final product
+then you have to include that many instances minus 1 of that prime in the final product (this can be done slighlty faster with log(20)/log(n) telling you the size of the greatest exponent)
 2 * 2 * 2 * 2 = 16
 3 * 3 = 9
 every other prime will only occur once

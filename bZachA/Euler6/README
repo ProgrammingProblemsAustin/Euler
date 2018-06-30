@@ -1,0 +1,25 @@
+Euler 6 is another calculator level problem.
+
+The sum of the squares of the first ten natural numbers is,
+
+1^2 + 2^2 + ... + 10^2 = 385
+The square of the sum of the first ten natural numbers is,
+
+(1 + 2 + ... + 10)^2 = 552 = 3025
+Hence the difference between the sum of the squares of the first ten natural numbers and the square of the sum is 3025 − 385 = 2640.
+
+Find the difference between the sum of the squares of the first one hundred natural numbers and the square of the sum.
+
+sum of n numbers from 1 to n is n * (n + 1) / 2
+100 * 101 / 2 =  50 * 101 = 5050
+square of that is
+25502500
+
+now we just need to find the sum of the squares of the first 100 natural numbers.. I don't know the formula off the top of my head... trivial to write a script to calculate though, see 6.hs
+
+25502500 - 338350 =  25164150
+
+looking up solution online that is correct but if I was slightly smarter maybe I would have derived a formula for the sum of 1^2 to n^2
+ 1 + 4 = 5
+ 1 + 4 + 9 = 14
+ 1 + 4 + 9 + 16 = 30
