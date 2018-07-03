@@ -27,7 +27,6 @@ import Data.Char
 --
 -- Find the thirteen adjacent digits in the 1000-digit number that have the greatest product. What is the value of this product?
 
-
 -- well... simplest way is to just multiply first thirteen then increment by one, then next 13, then next 13
 -- then should be 1000-13 combinations like that, then just select the biggest product
 
