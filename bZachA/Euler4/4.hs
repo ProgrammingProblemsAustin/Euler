@@ -41,7 +41,6 @@ multiplyAndCheckForPalindrome (inputNumber1, inputNumber2) =
 multiply2Tuple :: (Int, Int) -> Int
 multiply2Tuple (inputNumber1, inputNumber2) = inputNumber1 * inputNumber2
 
--- TODO implement function that generates this table (or triangle) as list of tuples (where * is ,)
 -- 999 * 999 998 * 999 997 * 999 996 * 999
 -- 999 * 998 998 * 998 997 * 998 996 * 998
 -- 999 * 997 998 * 997 997 * 997 996 * 997

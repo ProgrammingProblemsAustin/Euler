@@ -5,6 +5,7 @@
 --
 -- There exists exactly one Pythagorean triplet for which a + b + c = 1000.
 -- Find the product abc.
+import Control.Lens
 
 
 -- well step one is finding the triplet a + b + c = 1000. that also satisfies a^2 + b^2 = c^2
@@ -17,6 +18,81 @@ checkConstraint :: Int -> Int -> Int -> Bool
 checkConstraint a b c = a^2 + b^2 == c^2
 
 -- PROBLEM, this doesn't check the entire solution space
+-- this problem space is kind of a natural extension of the "triangular" problem space of Euler 4 that looked like
+
+-- 999 * 999 998 * 999 997 * 999 996 * 999
+-- 999 * 998 998 * 998 997 * 998 996 * 998
+-- 999 * 997 998 * 997 997 * 997 996 * 997
+-- 999 * 996 998 * 996 997 * 996 996 * 996
+
+-- 9 * 9   8 * 9   7 * 9   6 * 9  ...
+-- 9 * 8   8 * 8   7 * 8   6 * 8  ... 1 interval
+--                 7 * 7   6 * 7  ... 2 interval
+--                                ... 0 interval
+-- 4,4 3,4 2,4 1,4 0,4
+--     3,3 2,3 1,3 0,3 4
+--         2,2 1,2 0,2 3
+--             1,1 0,1 2
+--                 0,0 1
+--                     0
+
+-- generatePairsOfThreeDigitNumbersOrderedByProductSize :: Int -> [Int] -> [(Int, Int)]
+-- generatePairsOfThreeDigitNumbersOrderedByProductSize xAxisCounter yAxisCounters =
+--   -- if xAxisCounter == 0 && head yAxisCounters == 0 then
+--   --   [(0,0)]
+--   if xAxisCounter == 0 then
+--     map (\yAxisCounter ->
+--                 (xAxisCounter, yAxisCounter)
+--                          ) yAxisCounters
+--   else
+--     map (\yAxisCounter ->
+--                 (xAxisCounter, yAxisCounter)
+--                          ) yAxisCounters ++ generatePairsOfThreeDigitNumbersOrderedByProductSize (xAxisCounter - 1) (head yAxisCounters - 1 : yAxisCounters)
+
+-- generatePermutationsOfThreeTupleUnderConstraint :: Int -> (Int, Int, Int) -> [(Int,Int,Int)]
+-- CURRENT IMPLEMENTATION WILL NEVER EXPLORE THE WHOLE SPACE WE WANT IT TO EXPLORE
+-- possibly relevant: https://stackoverflow.com/questions/24484348/what-does-this-list-permutations-implementation-in-haskell-exactly-do
+findThreeTupleSumUnderConstraint :: Int -> (Int, Int, Int) -> (Int,Int,Int)
+findThreeTupleSumUnderConstraint targetSum tupleGuess =
+  if tupleGuess ^. _1 + tupleGuess ^. _2 + tupleGuess ^. _3 == targetSum && (tupleGuess ^. _1)^2 + (tupleGuess ^. _2)^2 == (tupleGuess ^. _3)^2 then
+    tupleGuess
+  else
+    if tupleGuess ^. _1 + tupleGuess ^. _2 + tupleGuess ^. _3 > 1000 then
+      -- then we want to try all variations of decreasing a, b, or c (within our constraints)
+      if tupleGuess ^. _3 - 1 > tupleGuess ^. _2 then
+        findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1, tupleGuess ^. _2, tupleGuess ^. _3 - 1)
+      else if tupleGuess ^. _2 - 1 > tupleGuess ^. _1 then
+        findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1, tupleGuess ^. _2 - 1, tupleGuess ^. _3)
+      else
+        findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1 - 1, tupleGuess ^. _2, tupleGuess ^. _3)
+    else if tupleGuess ^. _1 + tupleGuess ^. _2 + tupleGuess ^. _3 == 1000 then --(tupleGuess ^. _1)^2 + (tupleGuess ^. _2)^2 != (tupleGuess ^. _3)^2
+        -- here we want to try all variations of both increasing and decreasing a,b, and c that are within our constraints
+        findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1, tupleGuess ^. _2, tupleGuess ^. _3)
+    else -- tupleGuess ^. _1 + tupleGuess ^. _2 + tupleGuess ^. _3 < 1000
+      -- then we want to try all variations of increasing a, b, or c (within our constraints)
+      findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1, tupleGuess ^. _2, tupleGuess ^. _3)
+
+
+    -- if (tupleGuess ^. _1 + 1 < tupleGuess ^. _2) then
+    --   findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1 + 1, tupleGuess ^. _2, tupleGuess ^. _3)
+    -- else
+    --   findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1, tupleGuess ^. _2, tupleGuess ^. _3)
+
+
+
+-- BUT, this seems to be higher dimensional (a can be less or great, b can be less or greater, c can be less or greater)
+-- AND has a simultaneous constraint a < b < c
+
+-- 220 230 350, 221 230 350
+-- 219 230 350, 
+--
+--
+--
+--
+--
+--
+--
+
 perturbateBasedOnGuessResult :: (Int,Int,Int) -> (Int,Int,Int)
 perturbateBasedOnGuessResult (a,b,c) =
   if a^2 + b^2 > c^2 then
