@@ -40,7 +40,7 @@ checkConstraint a b c = a^2 + b^2 == c^2
 -- generatePairsOfThreeDigitNumbersOrderedByProductSize xAxisCounter yAxisCounters =
 --   -- if xAxisCounter == 0 && head yAxisCounters == 0 then
 --   --   [(0,0)]
---   if xAxisCounter == 0 then
+--   if xAxisCounter == 0 then -- I don't see why this is here :P
 --     map (\yAxisCounter ->
 --                 (xAxisCounter, yAxisCounter)
 --                          ) yAxisCounters
@@ -52,26 +52,33 @@ checkConstraint a b c = a^2 + b^2 == c^2
 -- generatePermutationsOfThreeTupleUnderConstraint :: Int -> (Int, Int, Int) -> [(Int,Int,Int)]
 -- CURRENT IMPLEMENTATION WILL NEVER EXPLORE THE WHOLE SPACE WE WANT IT TO EXPLORE
 -- possibly relevant: https://stackoverflow.com/questions/24484348/what-does-this-list-permutations-implementation-in-haskell-exactly-do
-findThreeTupleSumUnderConstraint :: Int -> (Int, Int, Int) -> (Int,Int,Int)
-findThreeTupleSumUnderConstraint targetSum tupleGuess =
-  if tupleGuess ^. _1 + tupleGuess ^. _2 + tupleGuess ^. _3 == targetSum && (tupleGuess ^. _1)^2 + (tupleGuess ^. _2)^2 == (tupleGuess ^. _3)^2 then
-    tupleGuess
-  else
-    if tupleGuess ^. _1 + tupleGuess ^. _2 + tupleGuess ^. _3 > 1000 then
-      -- then we want to try all variations of decreasing a, b, or c (within our constraints)
-      if tupleGuess ^. _3 - 1 > tupleGuess ^. _2 then
-        findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1, tupleGuess ^. _2, tupleGuess ^. _3 - 1)
-      else if tupleGuess ^. _2 - 1 > tupleGuess ^. _1 then
-        findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1, tupleGuess ^. _2 - 1, tupleGuess ^. _3)
-      else
-        findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1 - 1, tupleGuess ^. _2, tupleGuess ^. _3)
-    else if tupleGuess ^. _1 + tupleGuess ^. _2 + tupleGuess ^. _3 == 1000 then --(tupleGuess ^. _1)^2 + (tupleGuess ^. _2)^2 != (tupleGuess ^. _3)^2
-        -- here we want to try all variations of both increasing and decreasing a,b, and c that are within our constraints
-        findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1, tupleGuess ^. _2, tupleGuess ^. _3)
-    else -- tupleGuess ^. _1 + tupleGuess ^. _2 + tupleGuess ^. _3 < 1000
-      -- then we want to try all variations of increasing a, b, or c (within our constraints)
-      findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1, tupleGuess ^. _2, tupleGuess ^. _3)
-
+findThreeTupleSumUnderConstraint :: Int -> [(Int, Int, Int)] -> (Int,Int,Int)
+findThreeTupleSumUnderConstraint targetSum tupleGuesses =
+    foldl (\base tupleGuess ->
+             let t1 = tupleGuess ^. _1
+                 t2 = tupleGuess ^. _2
+                 t3 = tupleGuess ^. _3
+             in
+             if (t1 + t2 + t3 == targetSum) && t1^2 + t2^2 == t3^2 then
+               tupleGuess
+             else
+               -- solution might look like manually assembling the next guess (t1 +1, t2, t3-1) : (t1 - 1, t2, t3+1)
+               findThreeTupleSumUnderConstraint targetSum ((tupleGuess ^. _1, tupleGuess ^. _2, tupleGuess ^. _3) : tupleGuesses)
+    --if tupleGuess ^. _1 + tupleGuess ^. _2 + tupleGuess ^. _3 > 1000 then
+    --  -- then we want to try all variations of decreasing a, b, or c (within our constraints)
+    --  if tupleGuess ^. _3 - 1 > tupleGuess ^. _2 then
+    --    findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1, tupleGuess ^. _2, tupleGuess ^. _3 - 1)
+    --  else if tupleGuess ^. _2 - 1 > tupleGuess ^. _1 then
+    --    findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1, tupleGuess ^. _2 - 1, tupleGuess ^. _3)
+    --  else
+    --    findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1 - 1, tupleGuess ^. _2, tupleGuess ^. _3)
+    --else if tupleGuess ^. _1 + tupleGuess ^. _2 + tupleGuess ^. _3 == 1000 then --(tupleGuess ^. _1)^2 + (tupleGuess ^. _2)^2 != (tupleGuess ^. _3)^2
+    --    -- here we want to try all variations of both increasing and decreasing a,b, and c that are within our constraints
+    --    findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1, tupleGuess ^. _2, tupleGuess ^. _3)
+    --else -- tupleGuess ^. _1 + tupleGuess ^. _2 + tupleGuess ^. _3 < 1000
+    --  -- then we want to try all variations of increasing a, b, or c (within our constraints)
+    --  findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1, tupleGuess ^. _2, tupleGuess ^. _3)
+           ) (-1,-1,-1) tupleGuesses
 
     -- if (tupleGuess ^. _1 + 1 < tupleGuess ^. _2) then
     --   findThreeTupleSumUnderConstraint targetSum (tupleGuess ^. _1 + 1, tupleGuess ^. _2, tupleGuess ^. _3)
